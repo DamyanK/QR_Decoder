@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+import sys
 from PIL import Image
 
 def load_qr_to_bit_matrix(image_path):
@@ -81,10 +84,10 @@ def Up(x1, x2, y1, y2, matrix):
 
     # There are restrictions for the protected bits
     for i in range(x1, x2, -1):
-        if i == round(len(scaled) / 3) - 1:
+        if i == round(len(matrix) / 3) - 1:
             continue
         for j in range(y1, y2, -1):
-            if j == round(len(scaled) / 3) - 1:
+            if j == round(len(matrix) / 3) - 1:
                 continue
             error_bit += str(matrix[i][j])
     
@@ -95,10 +98,10 @@ def Down(x1, x2, y1, y2, matrix):
 
     # There are restrictions for the protected bits
     for i in range(x1, x2, 1):
-        if i == round(len(scaled) / 3) - 1:
+        if i == round(len(matrix) / 3) - 1:
             continue
         for j in range(y1, y2, -1):
-            if j == round(len(scaled) / 3) - 1:
+            if j == round(len(matrix) / 3) - 1:
                 continue
             error_bit += str(matrix[i][j])
 
@@ -166,57 +169,66 @@ def GetDataBits(matrix):
     
     return err
 
-# Image to bit matrix (0, 1)
-image_path = '../qr-code_chall1_imprime.png'
-bit_matrix = load_qr_to_bit_matrix(image_path)
+def main(arg):
+    # Image to bit matrix (0, 1)
+    image_path = arg
+    bit_matrix = load_qr_to_bit_matrix(image_path)
 
-# Getting the original scaled matrix and mask pattern
-scaled = ScaleMatrix(bit_matrix)
-mask = [str(bit) for bit in FindMask(scaled)]
-mask = ''.join(mask)
+    # Getting the original scaled matrix and mask pattern
+    scaled = ScaleMatrix(bit_matrix)
+    mask = [str(bit) for bit in FindMask(scaled)]
+    mask = ''.join(mask)
 
-# Unmasking bits (XOR with 1)
+    # Unmasking bits (XOR with 1)
 
-if mask == "000":
-    pass
-elif mask == "001":
-    pass
-elif mask == "010":
-    scaled = MaskPattern010(scaled)
-elif mask == "011":
-    pass
-elif mask == "100":
-    pass
-elif mask == "101":
-    pass
-elif mask == "110":
-    pass
-elif mask == "111":
-    pass
+    if mask == "000":
+        pass
+    elif mask == "001":
+        pass
+    elif mask == "010":
+        scaled = MaskPattern010(scaled)
+    elif mask == "011":
+        pass
+    elif mask == "100":
+        pass
+    elif mask == "101":
+        pass
+    elif mask == "110":
+        pass
+    elif mask == "111":
+        pass
 
 
-# Operations on unmasked qr code
-raw = GetDataBits(scaled)
-# Raw bits data
-#print(err) 
+    # Operations on unmasked qr code
+    raw = GetDataBits(scaled)
+    # Raw bits data
+    #print(err) 
 
-# Take encryption and length, later based on length will remove Message bits and
-# End bits, then split remaining error bits into octets and transform to ASCII
-encryption = raw[:4]
-length = raw[:12]
-length = length[4:]
+    # Take encryption and length, later based on length will remove Message bits and
+    # End bits, then split remaining error bits into octets and transform to ASCII
+    encryption = raw[:4]
+    length = raw[:12]
+    length = length[4:]
 
-message_bits = raw[12:]
-message_bits = [message_bits[i:i+8] for i in range(0, 8 * int(length, 2), 8)]
-message = [chr(int(bit, 2)) for bit in message_bits]
-message = ''.join(message)
+    message_bits = raw[12:]
+    message_bits = [message_bits[i:i+8] for i in range(0, 8 * int(length, 2), 8)]
+    message = [chr(int(bit, 2)) for bit in message_bits]
+    message = ''.join(message)
 
-error_bits = raw[int(length, 2) * 8 + 16:]
-error_bits = [error_bits[i:i+8] for i in range(0, len(error_bits), 8)]
-error_octets = [chr(int(bit, 2)) for bit in error_bits]
-error_octets = ''.join(error_octets)
+    error_bits = raw[int(length, 2) * 8 + 16:]
+    error_bits = [error_bits[i:i+8] for i in range(0, len(error_bits), 8)]
+    error_octets = [chr(int(bit, 2)) for bit in error_bits]
+    error_octets = ''.join(error_octets)
 
-#print("### UNMASKED ###\n")
-#Print(scaled)
-print(f"Original message: {message}")
-print(f"Hidden data in error bits: {error_octets}")
+    #print("### UNMASKED ###\n")
+    #Print(scaled)
+    print(f"Original message: {message}")
+    print(f"Hidden data in error bits: {error_octets}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: decoder.py <path-to-file>\nEx: decoder.py qrcode.png")
+    else:
+        arg = sys.argv[1]
+        main(arg)
+    
