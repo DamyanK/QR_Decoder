@@ -169,6 +169,27 @@ def GetDataBits(matrix):
     
     return err
 
+def MatrixToQR(bit_matrix):
+    # Calculate dimensions of the image
+    width = len(bit_matrix[0])
+    height = len(bit_matrix)
+
+    # Create a new image with white background
+    img = Image.new('RGB', (width, height), color='white')
+    pixels = img.load()
+
+    # Set pixel colors based on bit matrix
+    for y in range(height):
+        for x in range(width):
+            if bit_matrix[y][x] == 1:
+                pixels[x, y] = (0, 0, 0)  # Black pixel for '1'
+            else:
+                pixels[x, y] = (255, 255, 255)  # White pixel for '0'
+
+    # Save the image
+    img.save("test.png")
+
+
 def main(arg):
     # Image to bit matrix (0, 1)
     image_path = arg
@@ -224,6 +245,7 @@ def main(arg):
     #Print(scaled)
     print(f"Original message: {message}")
     print(f"Hidden data in error bits: {error_octets}")
+    #MatrixToQR(scaled)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
