@@ -29,12 +29,18 @@ def ScaleMatrix(scale_from):
     scaled = []
     # If cluster is a little offset, can always be changed 
     # according to offset
-    cluster_size = 38
 
-    # fully excluding the border
-    for x in range(cluster_size, len(scale_from) - cluster_size, cluster_size):
+    # 21 is the size for the version
+    size_for_version = 21
+
+    cluster_size = round(len(scale_from[0]) / size_for_version)
+
+    # If there is border, the range should be set according to the number of
+    # clusterized pixels there are. EX:
+    # range(cluster_size, len() - cluster_size, cluster_size)
+    for x in range(0, len(scale_from), cluster_size):
         row = []
-        for y in range(cluster_size, len(scale_from[0]) - cluster_size, cluster_size):
+        for y in range(0, len(scale_from[0]), cluster_size):
 
             # For every bit of a cluster in original matrix, append same bit to
             # a single block cluster in scaled
@@ -78,6 +84,8 @@ def MaskPattern010(matrix):
 
     return matrix
 
+def MaskPattern110(matrix):
+    pass
 
 def Up(x1, x2, y1, y2, matrix):
     error_bit = ""
@@ -169,6 +177,26 @@ def GetDataBits(matrix):
     
     return err
 
+def OutputData(raw):
+    # Take encryption and length, later based on length will remove Message bits and
+    # End bits, then split remaining error bits into octets and transform to ASCII
+    encryption = raw[:4]
+    length = raw[:12]
+    length = length[4:]
+
+    message_bits = raw[12:]
+    message_bits = [message_bits[i:i+8] for i in range(0, 8 * int(length, 2), 8)]
+    message = [chr(int(bit, 2)) for bit in message_bits]
+    message = ''.join(message)
+
+    error_bits = raw[int(length, 2) * 8 + 16:]
+    error_bits = [error_bits[i:i+8] for i in range(0, len(error_bits), 8)]
+    error_octets = [chr(int(bit, 2)) for bit in error_bits]
+    error_octets = ''.join(error_octets)
+
+    print(f"Original message: {message}")
+    print(f"Hidden data in error bits: {error_octets}")
+
 def MatrixToQR(bit_matrix):
     # Calculate dimensions of the image
     width = len(bit_matrix[0])
@@ -215,36 +243,17 @@ def main(arg):
     elif mask == "101":
         pass
     elif mask == "110":
-        pass
+        scaled == MaskPattern110(scaled)
     elif mask == "111":
         pass
 
 
     # Operations on unmasked qr code
-    raw = GetDataBits(scaled)
     # Raw bits data
-    #print(err) 
+    raw = GetDataBits(scaled)
+    
+    OutputData(raw)
 
-    # Take encryption and length, later based on length will remove Message bits and
-    # End bits, then split remaining error bits into octets and transform to ASCII
-    encryption = raw[:4]
-    length = raw[:12]
-    length = length[4:]
-
-    message_bits = raw[12:]
-    message_bits = [message_bits[i:i+8] for i in range(0, 8 * int(length, 2), 8)]
-    message = [chr(int(bit, 2)) for bit in message_bits]
-    message = ''.join(message)
-
-    error_bits = raw[int(length, 2) * 8 + 16:]
-    error_bits = [error_bits[i:i+8] for i in range(0, len(error_bits), 8)]
-    error_octets = [chr(int(bit, 2)) for bit in error_bits]
-    error_octets = ''.join(error_octets)
-
-    #print("### UNMASKED ###\n")
-    #Print(scaled)
-    print(f"Original message: {message}")
-    print(f"Hidden data in error bits: {error_octets}")
     #MatrixToQR(scaled)
 
 if __name__ == "__main__":
