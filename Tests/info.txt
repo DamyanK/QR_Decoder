@@ -1,0 +1,8 @@
+test000 = Hello World
+test001 = Ai Du
+test010 = :hip:
+test011 = Ai Du
+test100 = Ai Du
+test101 = Ai Du
+test110 = Ai Du
+test111 = Ai Du

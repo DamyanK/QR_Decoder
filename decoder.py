@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
+from math import floor
 import sys
 from PIL import Image
+
+CORNER_Length = 7
 
 def load_qr_to_bit_matrix(image_path):
     # Load the QR code image
@@ -61,6 +64,68 @@ def FindMask(matrix):
 
     return [1 ^ matrix[x - i][y] if i % 2 == 0 else 0 ^ matrix[x - i][y] for i in range(3)]
 
+# mask = 0 
+def MaskPattern000(matrix):
+     
+    # 1/3
+    for i in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+        for j in range(0, CORNER_Length + 2):
+            if j == CORNER_Length - 1:
+                continue
+            if((i + j) % 2 == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 2/3       
+    for i in range(0, len(matrix)):
+        for j in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+            if i == CORNER_Length - 1:
+                continue
+            
+            if((i + j) % 2 == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 3/3
+    for i in range(CORNER_Length + 2, len(matrix)):
+        for j in range(2 * CORNER_Length - 1, len(matrix)):
+            if((i + j) % 2 == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    return matrix
+
+# mask = 1
+def MaskPattern001(matrix):
+    # 1/3
+    for i in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+        for j in range(0, CORNER_Length + 2):
+            if j == CORNER_Length - 1:
+                continue
+            if i % 2 == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 2/3       
+    for i in range(0, len(matrix)):
+        for j in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+            if i == CORNER_Length - 1:
+                continue
+            
+            if i % 2 == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 3/3
+    for i in range(CORNER_Length + 2, len(matrix)):
+        for j in range(2 * CORNER_Length - 1, len(matrix)):
+            if i % 2 == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    return matrix
+
+# mask = 2
 def MaskPattern010(matrix):
     # This is for mask 010
     # QR is split into 3 equal segments vertically
@@ -69,23 +134,172 @@ def MaskPattern010(matrix):
     for i in range(round(len(matrix) / 3) + 2, 2 * round((len(matrix) / 3)) - 1):
         for j in range(0, round(len(matrix) / 3) - 1, 3):
             matrix[i][j] = matrix[i][j] ^ 1
+            #matrix[i][j] = 4
 
     # 2/3       
     for i in range(0, len(matrix)):
         for j in range(round(len(matrix) / 3) + 2, 2 * round((len(matrix) / 3)) - 1, 3):
-            if i == round(len(matrix) / 3) - 1 and j % 2 == 0:
+            if i == round(len(matrix) / 3) - 1:
                 continue
             matrix[i][j] = matrix[i][j] ^ 1
+            #matrix[i][j] = 4
 
     # 3/3
     for i in range(round(len(matrix) / 3) + 2, len(matrix)):
         for j in range(2 * round((len(matrix) / 3)) + 1, len(matrix), 3):
             matrix[i][j] = matrix[i][j] ^ 1
+            #matrix[i][j] = 4
 
     return matrix
 
+# mask = 3
+def MaskPattern011(matrix):
+    # 1/3
+    for i in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+        for j in range(0, CORNER_Length + 2):
+            if j == CORNER_Length - 1:
+                continue
+            if ((i + j) % 3) == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 2/3       
+    for i in range(0, len(matrix)):
+        for j in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+            if i == CORNER_Length - 1:
+                continue
+            
+            if ((i + j) % 3) == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 3/3
+    for i in range(CORNER_Length + 2, len(matrix)):
+        for j in range(2 * CORNER_Length - 1, len(matrix)):
+            if ((i + j) % 3) == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    return matrix
+
+# mask = 4
+def MaskPattern100(matrix):
+    # 1/3
+    for i in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+        for j in range(0, CORNER_Length + 2):
+            if j == CORNER_Length - 1:
+                continue
+            if (floor(i / 2) + floor(j / 3)) % 2 == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 2/3       
+    for i in range(0, len(matrix)):
+        for j in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+            if i == CORNER_Length - 1:
+                continue
+            
+            if (floor(i / 2) + floor(j / 3)) % 2 == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 3/3
+    for i in range(CORNER_Length + 2, len(matrix)):
+        for j in range(2 * CORNER_Length - 1, len(matrix)):
+            if (floor(i / 2) + floor(j / 3)) % 2 == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    return matrix
+
+# mask = 5
+def MaskPattern101(matrix):
+    # 1/3
+    for i in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+        for j in range(0, CORNER_Length + 2):
+            if j == CORNER_Length - 1:
+                continue
+            if (((i * j) % 2 + (i * j) % 3) == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 2/3       
+    for i in range(0, len(matrix)):
+        for j in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+            if i == CORNER_Length - 1:
+                continue
+            
+            if (((i * j) % 2 + (i * j) % 3) == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 3/3
+    for i in range(CORNER_Length + 2, len(matrix)):
+        for j in range(2 * CORNER_Length - 1, len(matrix)):
+            if (((i * j) % 2 + (i * j) % 3) == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    return matrix
+
+# mask = 6
 def MaskPattern110(matrix):
-    pass
+    # 1/3
+    for i in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+        for j in range(0, CORNER_Length + 2):
+            if j == CORNER_Length - 1:
+                continue
+            if((((i * j) % 2 + (i * j) % 3) % 2) == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 2/3       
+    for i in range(0, len(matrix)):
+        for j in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+            if i == CORNER_Length - 1:
+                continue
+            
+            if((((i * j) % 2 + (i * j) % 3) % 2) == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 3/3
+    for i in range(CORNER_Length + 2, len(matrix)):
+        for j in range(2 * CORNER_Length - 1, len(matrix)):
+            if((((i * j) % 2 + (i * j) % 3) % 2) == 0):
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    return matrix
+
+def MaskPattern111(matrix):
+        # 1/3
+    for i in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+        for j in range(0, CORNER_Length + 2):
+            if j == CORNER_Length - 1:
+                continue
+            if((((i * j) % 3 + i + j)) % 2) == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 2/3       
+    for i in range(0, len(matrix)):
+        for j in range(CORNER_Length + 2, 2 * CORNER_Length - 1):
+            if i == CORNER_Length - 1:
+                continue
+            
+            if((((i * j) % 3 + i + j)) % 2) == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    # 3/3
+    for i in range(CORNER_Length + 2, len(matrix)):
+        for j in range(2 * CORNER_Length - 1, len(matrix)):
+            if((((i * j) % 3 + i + j)) % 2) == 0:
+                matrix[i][j] = matrix[i][j] ^ 1
+                #matrix[i][j] = 4
+
+    return matrix
 
 def Up(x1, x2, y1, y2, matrix):
     error_bit = ""
@@ -194,6 +408,8 @@ def OutputData(raw):
     error_octets = [chr(int(bit, 2)) for bit in error_bits]
     error_octets = ''.join(error_octets)
 
+    print(f"Type of encoding: {encryption}")
+    print(f"Length of message: {int(length, 2)}")
     print(f"Original message: {message}")
     print(f"Hidden data in error bits: {error_octets}")
 
@@ -211,6 +427,9 @@ def MatrixToQR(bit_matrix):
         for x in range(width):
             if bit_matrix[y][x] == 1:
                 pixels[x, y] = (0, 0, 0)  # Black pixel for '1'
+            # Test purpose only
+            elif bit_matrix[y][x] == 4:
+                pixels[x, y] = (255, 0, 0)
             else:
                 pixels[x, y] = (255, 255, 255)  # White pixel for '0'
 
@@ -231,27 +450,31 @@ def main(arg):
     # Unmasking bits (XOR with 1)
 
     if mask == "000":
-        pass
+        scaled = MaskPattern000(scaled)
     elif mask == "001":
-        pass
+        scaled = MaskPattern001(scaled)
     elif mask == "010":
         scaled = MaskPattern010(scaled)
     elif mask == "011":
-        pass
+        scaled = MaskPattern011(scaled)
     elif mask == "100":
-        pass
+        scaled = MaskPattern100(scaled)
     elif mask == "101":
-        pass
+        scaled = MaskPattern101(scaled)
     elif mask == "110":
-        scaled == MaskPattern110(scaled)
+        scaled = MaskPattern110(scaled)
     elif mask == "111":
-        pass
+        scaled = MaskPattern111(scaled)
 
 
     # Operations on unmasked qr code
     # Raw bits data
     raw = GetDataBits(scaled)
     
+    #Print(scaled)
+    print(f"Mask: {mask}")
+    print(f"Raw data: {raw}")
+
     OutputData(raw)
 
     #MatrixToQR(scaled)
