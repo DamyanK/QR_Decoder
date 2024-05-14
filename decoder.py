@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-from math import floor
 import sys
+from math import floor
 from PIL import Image
 
 CORNER_Length = 7
+# 21 is the size for version 1
+size_for_version = 21
 
 def load_qr_to_bit_matrix(image_path):
     # Load the QR code image
@@ -32,9 +34,6 @@ def ScaleMatrix(scale_from):
     scaled = []
     # If cluster is a little offset, can always be changed 
     # according to offset
-
-    # 21 is the size for the version
-    size_for_version = 21
 
     cluster_size = round(len(scale_from[0]) / size_for_version)
 
